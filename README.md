@@ -1,8 +1,6 @@
 <h1>db-geocode-housing-tpad</h1>
 <h3>GRU Housing Geocode TPAD QAQC Project</h3>
-<p>This project reads the housing database for records where the certificate of occupancy
-earliest effective date has a value. It then calls Geosupport using function 1B to identify
-records in TPAD.</p>
+<p>This project reads the housing developments database for records where the certificate of occupancy earliest effective date has a value. It then calls Geosupport using function 1B to identify records in TPAD.</p>
 
 <h4>Instructions:</h4>
 <ol>

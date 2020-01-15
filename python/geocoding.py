@@ -48,27 +48,30 @@ def parse_output(geo):
 if __name__ == '__main__':
     # connect to postgres db
     #recipe_engine = create_engine(os.environ['RECIPE_ENGINE'])
+    edm_engine = create_engine(os.environ['EDM_DATA'])
     engine = create_engine(os.environ['BUILD_ENGINE'])
 
     # read in housing table
     #df = pd.read_sql("SELECT job_number, job_number||status_date AS uid, address_house, address_street, boro,\
-    #                    co_earliest_effectivedate, status_q, status_a, x_outlier\
-    #                                  FROM developments WHERE co_earliest_effectivedate > ' ';", recipe_engine)
-    df = pd.read_csv("input/housing-development.csv");
-    df = df.loc[df['co_earliest_effectivedate'] > ' ']
+    df = pd.read_sql("SELECT job_number, job_number||date_lastupdt AS uid, address_numbr, address_st, boro,\
+                        date_complete, date_permittd, date_filed\
+                                      FROM developments.latest WHERE date_complete > ' ';", edm_engine)
+    #df = pd.read_csv("input/housing-development.csv");
+    #df = df.loc[df['co_earliest_effectivedate'] > ' ']
     print(df.head())
 
     #get the row number
-    df = df.rename(columns={'address_house':'house_number',
-                            'address_street':'street_name',
+    df = df.rename(columns={'address_numbr':'house_number',
+                            'address_st':'street_name',
                             'boro':'borough'})
 
     records = df.to_dict('records')
 
     print('geocoding begins here ...')
+
     # Multiprocess
     with Pool(processes=cpu_count()) as pool:
         it = pool.map(geocode, records, 10000)
 
     print('geocoding finished, dumping to postgres ...')
-    pd.DataFrame(it).to_sql('housing_geocode', engine, if_exists='replace', chunksize=10000, index=False)
+    pd.DataFrame(it).to_sql('developments_coeff_geocoded', engine, if_exists='replace', chunksize=10000, index=False)
